@@ -12,7 +12,7 @@ services:
       - ./Gateway/api_gateway.conf:/etc/nginx/api_gateway.conf
       
   user-service:
-    image: user-service:compose_build
+    image: userservice:compose_build
     build:
       context: ./user-service
       dockerfile: Dockerfile
@@ -20,9 +20,11 @@ services:
       - backend
     environment:
       PORT: ${USER_SERVICE_PORT}
+      MONGODB_URI: mongo:27017
+    restart: always
       
   ticket-service:
-    image: ticket-service:compose_build
+    image: ticketservice:compose_build
     build:
       context: ./ticket-service
       dockerfile: Dockerfile
@@ -36,7 +38,7 @@ services:
       PORT: ${TICKET_SERVICE_PORT}
 
   flight-service:
-    image: flight-service:compose_build
+    image: flightservice:compose_build
     build:
       context: ./flight-service
       dockerfile: Dockerfile
@@ -45,6 +47,19 @@ services:
     environment:
       PORT: ${FLIGHT_SERVICE_PORT}
 
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
 
 networks:
   backend:

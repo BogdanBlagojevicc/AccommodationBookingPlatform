@@ -1,10 +1,12 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Ticket struct {
-	ID              uuid.UUID
-	UserID          uuid.UUID
-	FlightID        uuid.UUID
+	ID              primitive.ObjectID
+	UserID          primitive.ObjectID
+	FlightID        primitive.ObjectID
 	NumberOfTickets uint8
 }

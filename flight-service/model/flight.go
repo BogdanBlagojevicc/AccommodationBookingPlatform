@@ -1,9 +1,11 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Flight struct {
-	ID             uuid.UUID
+	ID             primitive.ObjectID
 	Departure      string
 	DeparturePlace string
 	ArrivalPlace   string
