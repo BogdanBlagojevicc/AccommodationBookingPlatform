@@ -7,11 +7,18 @@ import (
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id"`
-	FirstName string
-	LastName  string
-	Email     string
-	Password  string
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	FirstName string             `bson:"first_name" json:"firstName"`
+	LastName  string             `bson:"last_name" json:"lastName"`
+	Email     string             `bson:"email" json:"email"`
+	Password  string             `bson:"password" json:"password"`
+}
+
+type Users []*User
+
+func (u *Users) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(u)
 }
 
 func (u *User) ToJSON(w io.Writer) error {

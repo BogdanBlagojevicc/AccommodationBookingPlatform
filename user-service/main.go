@@ -1,72 +1,36 @@
 package main
 
-/*
 import (
 	"context"
-	"fmt"
-	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
+	"time"
 	"user-service/handler"
 	"user-service/repository"
-	"user-service/service"
 )
-
-func initDB() *mongo.Client {
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
-
-	mongoUri := os.Getenv("MONGODB_URI")
-	clientOptions := options.Client().ApplyURI("mongodb://" + mongoUri)
-
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = client.Ping(context.TODO(), nil)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Connected")
-
-	return client
-}
-
-func initRepo(client *mongo.Client) *repository.UserRepository {
-	return &repository.UserRepository{Client: client}
-}
-
-func initService(repo *repository.UserRepository) *service.UserService {
-	return &service.UserService{Repo: repo}
-}
-
-func initHandler(service *service.UserService) *handler.UserHandler {
-	return &handler.UserHandler{Service: service}
-}
-
-func handleFunc(handler *handler.UserHandler) {
-	router := mux.NewRouter().StrictSlash(true)
-
-	router.HandleFunc("/", handler.Hello).Methods("GET")
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), router))
-}
 
 func main() {
 
-	client := initDB()
-	repository := initRepo(client)
-	service := initService(repository)
-	handler := initHandler(service)
-	handleFunc(handler)
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+
+	timeoutContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	logger := log.New(os.Stdout, "[product-api] ", log.LstdFlags)
+	userLogger := log.New(os.Stdout, "[user-store] ", log.LstdFlags)
+
+	userStore, err := repository.New(timeoutContext, userLogger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer userStore.Disconnect(timeoutContext)
+
+	userStore.Ping()
+
+	usersHandler := handler.NewUserHandler(logger, userStore)
+
+	usersHandler.DatabaseName(timeoutContext)
 }
-*/
