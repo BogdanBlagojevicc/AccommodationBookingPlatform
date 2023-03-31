@@ -12,6 +12,7 @@ type User struct {
 	LastName  string             `bson:"lastName" json:"lastName"`
 	Email     string             `bson:"email" json:"email"`
 	Password  string             `bson:"password" json:"password"`
+	Role      UserRole           `bson:"userRole" json:"userRole"`
 }
 
 type Users []*User
