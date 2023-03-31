@@ -3,26 +3,27 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
 	"user-service/model"
-	"user-service/repository"
+	"user-service/service"
 )
 
 type KeyProduct struct{}
 type UserHandler struct {
-	Logger *log.Logger
-	Repo   *repository.UserRepository
+	Logger  *log.Logger
+	Service *service.UserService
 }
 
-func NewUserHandler(l *log.Logger, r *repository.UserRepository) *UserHandler {
-	return &UserHandler{l, r}
+func NewUserHandler(l *log.Logger, s *service.UserService) *UserHandler {
+	return &UserHandler{l, s}
 }
 
 func (u *UserHandler) DatabaseName(ctx context.Context) {
-	dbs, err := u.Repo.Cli.ListDatabaseNames(ctx, bson.M{})
+	dbs, err := u.Service.Repo.Cli.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		log.Println(err)
 	}
@@ -73,8 +74,32 @@ func (u *UserHandler) PostUser(rw http.ResponseWriter, h *http.Request) {
 	user := h.Context().Value(KeyProduct{}).(*model.User)
 	//newUser := model.User{ID: primitive.NewObjectID(), FirstName: user.FirstName, LastName: user.LastName, Email: user.Email, Password: user.Password}
 	user.ID = primitive.NewObjectID()
-	u.Repo.Insert(user)
+	createdUser, err := u.Service.Insert(user)
+	if createdUser == nil {
+		rw.WriteHeader(http.StatusBadRequest)
+	}
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+	}
 	rw.WriteHeader(http.StatusCreated)
+}
+
+func (u *UserHandler) GetUserByEmailAndPassword(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	email := vars["email"]
+	password := vars["password"]
+
+	user, err := u.Service.GetUserByEmailAndPassword(email, password)
+
+	if err != nil {
+		fmt.Println("Error while logging in.")
+		rw.WriteHeader(http.StatusBadRequest)
+	}
+
+	if user != nil {
+		rw.WriteHeader(http.StatusOK)
+	}
+
 }
 
 func (u *UserHandler) MiddlewareContentTypeSet(next http.Handler) http.Handler {

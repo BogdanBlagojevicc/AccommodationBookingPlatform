@@ -1,5 +1,5 @@
 FROM golang:1.15-alpine3.13
-WORKDIR app
+WORKDIR user-service
 RUN apk update \
     && apk add sqlite \
     && apk add socat \

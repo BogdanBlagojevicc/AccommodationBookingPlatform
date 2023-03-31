@@ -20,7 +20,7 @@ services:
       - backend
     environment:
       PORT: ${USER_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://srbija:srbija@cluster0.wmo9pka.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://draga:draga@cluster0.mgxlkdp.mongodb.net/?retryWrites=true&w=majority"
     restart: always
 
   ticket-service:
@@ -36,7 +36,7 @@ services:
       FLIGHT_SERVICE_DOMAIN: ${FLIGHT_SERVICE_DOMAIN}
       FLIGHT_SERVICE_PORT: ${FLIGHT_SERVICE_PORT}
       PORT: ${TICKET_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://srbija:srbija@cluster0.wmo9pka.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://liki:liki@cluster0.wlmeuw2.mongodb.net/?retryWrites=true&w=majority"
 
   flight-service:
     image: flightservice:compose_build

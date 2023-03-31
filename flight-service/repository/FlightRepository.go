@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
+	"os"
 	"time"
 )
 
@@ -19,7 +20,9 @@ type FlightRepository struct {
 
 func New(ctx context.Context, logger *log.Logger) (*FlightRepository, error) {
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://admin:admin@cluster0.ix2bius.mongodb.net/?retryWrites=true&w=majority"))
+	dburi := os.Getenv("MONGODB_URI")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(dburi))
 	if err != nil {
 		log.Println(err)
 		return nil, err

@@ -67,7 +67,39 @@ func (ur *UserRepository) getCollection() *mongo.Collection {
 	return usersCollection
 }
 
-func (ur *UserRepository) Insert(user *model.User) error {
+func (ur *UserRepository) GetByEmail(email string) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := ur.getCollection()
+
+	var user model.User
+	err := usersCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		fmt.Println("Ovo je ok")
+		ur.Logger.Println(err)
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (ur *UserRepository) GetUserByEmailAndPassword(email string, password string) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	usersCollection := ur.getCollection()
+
+	var user model.User
+	err := usersCollection.FindOne(ctx, bson.M{"email": email, "password": password}).Decode(&user)
+	if err != nil {
+		fmt.Println("Ovo ne valja")
+		ur.Logger.Println(err)
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (ur *UserRepository) Insert(user *model.User) (*model.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	usersCollection := ur.getCollection()
@@ -75,8 +107,8 @@ func (ur *UserRepository) Insert(user *model.User) error {
 	result, err := usersCollection.InsertOne(ctx, &user)
 	if err != nil {
 		ur.Logger.Println(err)
-		return err
+		return nil, err
 	}
 	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	return user, nil
 }

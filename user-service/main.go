@@ -10,6 +10,7 @@ import (
 	"time"
 	"user-service/handler"
 	"user-service/repository"
+	"user-service/service"
 
 	gorillaHandlers "github.com/gorilla/handlers"
 )
@@ -35,7 +36,8 @@ func main() {
 
 	userStore.Ping()
 
-	usersHandler := handler.NewUserHandler(logger, userStore)
+	userService := service.NewUserService(logger, userStore)
+	usersHandler := handler.NewUserHandler(logger, userService)
 
 	usersHandler.DatabaseName(timeoutContext)
 
@@ -46,9 +48,11 @@ func main() {
 	postRouter.HandleFunc("/", usersHandler.PostUser)
 	postRouter.Use(usersHandler.MiddlewareUserDeserialization)
 
+	getByEmailAndPasswordRouter := router.Methods(http.MethodGet).Subrouter()
+	getByEmailAndPasswordRouter.HandleFunc("/{email}/{password}", usersHandler.GetUserByEmailAndPassword)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
-	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,
 		Handler:      cors(router),
@@ -58,7 +62,6 @@ func main() {
 	}
 
 	logger.Println("Server listening on port", port)
-	//Distribute all the connections to goroutines
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
@@ -73,7 +76,6 @@ func main() {
 	sig := <-sigCh
 	logger.Println("Received terminate, graceful shutdown", sig)
 
-	//Try to shutdown gracefully
 	if server.Shutdown(timeoutContext) != nil {
 		logger.Fatal("Cannot gracefully shutdown...")
 	}
