@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"flight-service/model"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -56,4 +57,24 @@ func (u *FlightRepository) Ping() {
 		u.Logger.Println(err)
 	}
 	fmt.Println(dbs)
+}
+
+func (ur *FlightRepository) getCollection() *mongo.Collection {
+	bookingDatabase := ur.Cli.Database("booking")
+	usersCollection := bookingDatabase.Collection("users")
+	return usersCollection
+}
+
+func (ur *FlightRepository) Insert(flight *model.Flight) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	flightsCollection := ur.getCollection()
+
+	result, err := flightsCollection.InsertOne(ctx, &flight)
+	if err != nil {
+		ur.Logger.Println(err)
+		return err
+	}
+	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return nil
 }

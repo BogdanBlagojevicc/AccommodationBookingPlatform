@@ -47,7 +47,7 @@ services:
       - backend
     environment:
       PORT: ${FLIGHT_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://srbija:srbija@cluster0.wmo9pka.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://stefi:stefi@cluster0.ybc4ebh.mongodb.net/?retryWrites=true&w=majority"
 
 networks:
   backend:
