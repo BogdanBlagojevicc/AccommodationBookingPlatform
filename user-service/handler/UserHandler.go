@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
 	"user-service/model"
@@ -70,6 +71,8 @@ func (u *UserHandler) MiddlewareUserDeserialization(next http.Handler) http.Hand
 
 func (u *UserHandler) PostUser(rw http.ResponseWriter, h *http.Request) {
 	user := h.Context().Value(KeyProduct{}).(*model.User)
+	//newUser := model.User{ID: primitive.NewObjectID(), FirstName: user.FirstName, LastName: user.LastName, Email: user.Email, Password: user.Password}
+	user.ID = primitive.NewObjectID()
 	u.Repo.Insert(user)
 	rw.WriteHeader(http.StatusCreated)
 }
