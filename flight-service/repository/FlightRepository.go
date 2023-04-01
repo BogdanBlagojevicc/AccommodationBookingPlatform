@@ -5,6 +5,7 @@ import (
 	"flight-service/model"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -104,4 +105,20 @@ func (ur *FlightRepository) GetAll(departure string, departurePlace string, arri
 		return nil, err
 	}
 	return flights, nil
+}
+
+func (fr *FlightRepository) GetFlightById(id string) (*model.Flight, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	flightsCollection := fr.getCollection()
+
+	var flight model.Flight
+	objID, _ := primitive.ObjectIDFromHex(id)
+	err := flightsCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&flight)
+	if err != nil {
+		fr.Logger.Println(err)
+		return nil, err
+	}
+	return &flight, nil
 }

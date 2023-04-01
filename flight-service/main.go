@@ -50,6 +50,9 @@ func main() {
 	getFlights := router.Methods(http.MethodGet).Subrouter()
 	getFlights.HandleFunc("/{departure}/{departurePlace}/{arrivalPlace}/{noOfSeats}", flightsHandler.GetFlights)
 
+	getByIdRouter := router.Methods(http.MethodGet).Subrouter()
+	getByIdRouter.HandleFunc("/getFlight/{id}", flightsHandler.GetFlightById)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server

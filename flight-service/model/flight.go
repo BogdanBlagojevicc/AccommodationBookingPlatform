@@ -7,7 +7,7 @@ import (
 )
 
 type Flight struct {
-	ID                primitive.ObjectID `bson:"_id" json:"id"`
+	ID                primitive.ObjectID `bson:"_id, omitempty" json:"id"`
 	Departure         string             `bson:"departure" json:"departure"`
 	DeparturePlace    string             `bson:"departurePlace" json:"departurePlace"`
 	ArrivalPlace      string             `bson:"arrivalPlace" json:"arrivalPlace"`

@@ -62,6 +62,30 @@ func (f *FlightHandler) PostFlight(rw http.ResponseWriter, h *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 }
 
+func (f *FlightHandler) GetFlightById(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	id := vars["id"]
+
+	flight, err := f.Service.GetFlightById(id)
+	if err != nil {
+		f.Logger.Print("Database exception: ", err)
+	}
+
+	if flight == nil {
+		http.Error(rw, "Flight with given id not found", http.StatusNotFound)
+		f.Logger.Printf("Flight with id: '%s' not found", id)
+		return
+	}
+
+	err = flight.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+		f.Logger.Fatal("Unable to convert to json :", err)
+		return
+	}
+
+}
+
 func (f *FlightHandler) GetFlights(rw http.ResponseWriter, h *http.Request) {
 	vars := mux.Vars(h)
 	date := vars["departure"]
