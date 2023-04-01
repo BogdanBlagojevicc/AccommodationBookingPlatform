@@ -81,3 +81,27 @@ func (ur *FlightRepository) Insert(flight *model.Flight) (*model.Flight, error) 
 	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return flight, nil
 }
+
+func (ur *FlightRepository) GetAll(departure string, departurePlace string, arrivalPlace string, noOfSeats int) (model.Flights, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	flightsCollection := ur.getCollection()
+	//		"numberOfFreeSeats" :  {$gt:4}
+
+	var flights model.Flights
+	flightsCursor, err := flightsCollection.Find(ctx, bson.M{
+		"departure":         departure,
+		"departurePlace":    departurePlace,
+		"arrivalPlace":      arrivalPlace,
+		"numberOfFreeSeats": bson.M{"$gte": noOfSeats}})
+	if err != nil {
+		ur.Logger.Println(err)
+		return nil, err
+	}
+	if err = flightsCursor.All(ctx, &flights); err != nil {
+		ur.Logger.Println(err)
+		return nil, err
+	}
+	return flights, nil
+}

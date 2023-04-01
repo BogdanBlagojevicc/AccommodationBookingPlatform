@@ -7,12 +7,12 @@ import (
 )
 
 type Flight struct {
-	ID             primitive.ObjectID `bson:"_id" json:"id"`
-	Departure      string             `bson:"departure" json:"departure"`
-	DeparturePlace string             `bson:"departurePlace" json:"departurePlace"`
-	ArrivalPlace   string             `bson:"arrivalPlace" json:"arrivalPlace"`
-	Price          uint64             `bson:"price" json:"price"`
-	NumberOfSeats  uint64             `bson:"numberOfSeats" json:"numberOfSeats"`
+	ID                primitive.ObjectID `bson:"_id" json:"id"`
+	Departure         string             `bson:"departure" json:"departure"`
+	DeparturePlace    string             `bson:"departurePlace" json:"departurePlace"`
+	ArrivalPlace      string             `bson:"arrivalPlace" json:"arrivalPlace"`
+	Price             uint64             `bson:"price" json:"price"`
+	NumberOfFreeSeats uint64             `bson:"numberOfFreeSeats" json:"numberOfFreeSeats"`
 }
 
 type Flights []*Flight

@@ -5,10 +5,12 @@ import (
 	"flight-service/model"
 	"flight-service/service"
 	"fmt"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type KeyProduct struct{}
@@ -58,6 +60,37 @@ func (f *FlightHandler) PostFlight(rw http.ResponseWriter, h *http.Request) {
 		rw.WriteHeader(http.StatusBadRequest)
 	}
 	rw.WriteHeader(http.StatusCreated)
+}
+
+func (f *FlightHandler) GetFlights(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	date := vars["departure"]
+	departurePlace := vars["departurePlace"]
+	arrivalPlace := vars["arrivalPlace"]
+	noOfSeats := vars["noOfSeats"]
+
+	n, erre := strconv.Atoi(noOfSeats)
+	if erre != nil {
+		fmt.Println("Error during conversion.")
+		return
+	}
+	fmt.Println("Broj iz URLA: ", n)
+
+	flights, err := f.Service.GetFlights(date, departurePlace, arrivalPlace, n)
+
+	if err != nil {
+		f.Logger.Println("Database exception ", err)
+	}
+
+	if flights == nil {
+		return
+	}
+	err = flights.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+		f.Logger.Fatal("Unable to convert to json :", err)
+		return
+	}
 }
 
 func (u *FlightHandler) MiddlewareContentTypeSet(next http.Handler) http.Handler {

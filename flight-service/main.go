@@ -47,6 +47,9 @@ func main() {
 	postRouter.HandleFunc("/", flightsHandler.PostFlight)
 	postRouter.Use(flightsHandler.MiddlewareUserDeserialization)
 
+	getFlights := router.Methods(http.MethodGet).Subrouter()
+	getFlights.HandleFunc("/{departure}/{departurePlace}/{arrivalPlace}/{noOfSeats}", flightsHandler.GetFlights)
+
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
 	//Initialize the server
