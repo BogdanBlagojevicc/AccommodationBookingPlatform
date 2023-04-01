@@ -47,8 +47,11 @@ func main() {
 	postRouter.HandleFunc("/", flightsHandler.PostFlight)
 	postRouter.Use(flightsHandler.MiddlewareUserDeserialization)
 
-	getFlights := router.Methods(http.MethodGet).Subrouter()
-	getFlights.HandleFunc("/{departure}/{departurePlace}/{arrivalPlace}/{noOfSeats}", flightsHandler.GetFlights)
+	deleteRouter := router.Methods(http.MethodDelete).Subrouter()
+	deleteRouter.HandleFunc("/delete/{id}", flightsHandler.DeleteFlight)
+
+	getFlightByIdRouter := router.Methods(http.MethodGet).Subrouter()
+	getFlightByIdRouter.HandleFunc("/getFlight/{id}", flightsHandler.GetFlightById)
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
@@ -77,7 +80,7 @@ func main() {
 	sig := <-sigCh
 	logger.Println("Received terminate, graceful shutdown", sig)
 
-	//Try to shutdown gracefully
+	//Try to shut down gracefully
 	if server.Shutdown(timeoutContext) != nil {
 		logger.Fatal("Cannot gracefully shutdown...")
 	}
