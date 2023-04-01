@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 	"flight-service/model"
-	"flight-service/repository"
+	"flight-service/service"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,16 +13,16 @@ import (
 
 type KeyProduct struct{}
 type FlightHandler struct {
-	Logger *log.Logger
-	Repo   *repository.FlightRepository
+	Logger  *log.Logger
+	Service *service.FlightService
 }
 
-func NewFlightHandler(l *log.Logger, r *repository.FlightRepository) *FlightHandler {
-	return &FlightHandler{l, r}
+func NewFlightHandler(l *log.Logger, s *service.FlightService) *FlightHandler {
+	return &FlightHandler{l, s}
 }
 
 func (u *FlightHandler) DatabaseName(ctx context.Context) {
-	dbs, err := u.Repo.Cli.ListDatabaseNames(ctx, bson.M{})
+	dbs, err := u.Service.Repo.Cli.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		log.Println(err)
 	}
@@ -46,10 +46,17 @@ func (u *FlightHandler) MiddlewareUserDeserialization(next http.Handler) http.Ha
 	})
 }
 
-func (u *FlightHandler) PostFlight(rw http.ResponseWriter, h *http.Request) {
+func (f *FlightHandler) PostFlight(rw http.ResponseWriter, h *http.Request) {
 	flight := h.Context().Value(KeyProduct{}).(*model.Flight)
+	//newUser := model.User{ID: primitive.NewObjectID(), FirstName: user.FirstName, LastName: user.LastName, Email: user.Email, Password: user.Password}
 	flight.ID = primitive.NewObjectID()
-	u.Repo.Insert(flight)
+	createdFlight, err := f.Service.Insert(flight)
+	if createdFlight == nil {
+		rw.WriteHeader(http.StatusBadRequest)
+	}
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+	}
 	rw.WriteHeader(http.StatusCreated)
 }
 

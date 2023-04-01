@@ -7,12 +7,19 @@ import (
 )
 
 type Flight struct {
-	ID             primitive.ObjectID
-	Departure      string
-	DeparturePlace string
-	ArrivalPlace   string
-	Price          uint64
-	NumberOfSeats  uint64
+	ID             primitive.ObjectID `bson:"_id" json:"id"`
+	Departure      string             `bson:"departure" json:"departure"`
+	DeparturePlace string             `bson:"departurePlace" json:"departurePlace"`
+	ArrivalPlace   string             `bson:"arrivalPlace" json:"arrivalPlace"`
+	Price          uint64             `bson:"price" json:"price"`
+	NumberOfSeats  uint64             `bson:"numberOfSeats" json:"numberOfSeats"`
+}
+
+type Flights []*Flight
+
+func (f *Flights) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(f)
 }
 
 func (u *Flight) ToJSON(w io.Writer) error {

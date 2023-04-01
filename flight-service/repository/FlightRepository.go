@@ -64,11 +64,11 @@ func (u *FlightRepository) Ping() {
 
 func (ur *FlightRepository) getCollection() *mongo.Collection {
 	bookingDatabase := ur.Cli.Database("booking")
-	usersCollection := bookingDatabase.Collection("users")
+	usersCollection := bookingDatabase.Collection("flights")
 	return usersCollection
 }
 
-func (ur *FlightRepository) Insert(flight *model.Flight) error {
+func (ur *FlightRepository) Insert(flight *model.Flight) (*model.Flight, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	flightsCollection := ur.getCollection()
@@ -76,8 +76,8 @@ func (ur *FlightRepository) Insert(flight *model.Flight) error {
 	result, err := flightsCollection.InsertOne(ctx, &flight)
 	if err != nil {
 		ur.Logger.Println(err)
-		return err
+		return nil, err
 	}
 	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
-	return nil
+	return flight, nil
 }

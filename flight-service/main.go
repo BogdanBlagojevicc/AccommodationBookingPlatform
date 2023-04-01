@@ -4,6 +4,7 @@ import (
 	"context"
 	"flight-service/handler"
 	"flight-service/repository"
+	"flight-service/service"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -34,8 +35,8 @@ func main() {
 	defer flightStore.Disconnect(timeoutContext)
 
 	flightStore.Ping()
-
-	flightsHandler := handler.NewFlightHandler(logger, flightStore)
+	flightService := service.NewFlightService(logger, flightStore)
+	flightsHandler := handler.NewFlightHandler(logger, flightService)
 
 	flightsHandler.DatabaseName(timeoutContext)
 
