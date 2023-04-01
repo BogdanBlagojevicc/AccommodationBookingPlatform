@@ -27,3 +27,7 @@ func (fs *FlightService) Delete(id string) error {
 func (fs *FlightService) GetFlightById(id string) (*model.Flight, error) {
 	return fs.Repo.GetFlightById(id)
 }
+
+func (fs *FlightService) GetFlights(departure string, departurePlace string, arrivalPlace string, noOfSeats int) (model.Flights, error) {
+	return fs.Repo.GetAll(departure, departurePlace, arrivalPlace, noOfSeats)
+}
