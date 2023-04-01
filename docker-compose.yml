@@ -20,8 +20,9 @@ services:
       - backend
     environment:
       PORT: ${USER_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://draga:draga@cluster0.mgxlkdp.mongodb.net/?retryWrites=true&w=majority"
-    restart: always
+#      MONGODB_URI: "mongodb+srv://draga:draga@cluster0.mgxlkdp.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://draga:draga@cluster0.heoxbif.mongodb.net/?retryWrites=true&w=majority"
+#    restart: always
 
   ticket-service:
     image: ticketservice:compose_build
@@ -36,8 +37,8 @@ services:
       FLIGHT_SERVICE_DOMAIN: ${FLIGHT_SERVICE_DOMAIN}
       FLIGHT_SERVICE_PORT: ${FLIGHT_SERVICE_PORT}
       PORT: ${TICKET_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://liki:liki@cluster0.wlmeuw2.mongodb.net/?retryWrites=true&w=majority"
-
+#      MONGODB_URI: "mongodb+srv://liki:liki@cluster0.wlmeuw2.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://liki:liki@cluster0.qrubnh4.mongodb.net/?retryWrites=true&w=majority"
   flight-service:
     image: flightservice:compose_build
     build:
@@ -47,7 +48,8 @@ services:
       - backend
     environment:
       PORT: ${FLIGHT_SERVICE_PORT}
-      MONGODB_URI: "mongodb+srv://stefi:stefi@cluster0.ybc4ebh.mongodb.net/?retryWrites=true&w=majority"
+#      MONGODB_URI: "mongodb+srv://stefi:stefi@cluster0.ybc4ebh.mongodb.net/?retryWrites=true&w=majority"
+      MONGODB_URI: "mongodb+srv://stefi:stefi@cluster0.pxckafn.mongodb.net/?retryWrites=true&w=majority"
 
 networks:
   backend:
