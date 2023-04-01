@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"os"
+	"ticket-service/model"
 	"time"
 )
 
@@ -58,4 +59,24 @@ func (u *TicketRepository) Ping() {
 		u.Logger.Println(err)
 	}
 	fmt.Println(dbs)
+}
+
+func (tr *TicketRepository) getCollection() *mongo.Collection {
+	bookingDatabase := tr.Cli.Database("booking")
+	ticketsCollection := bookingDatabase.Collection("tickets")
+	return ticketsCollection
+}
+
+func (tr *TicketRepository) Insert(ticket *model.Ticket) (*model.Ticket, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	ticketsCollection := tr.getCollection()
+
+	result, err := ticketsCollection.InsertOne(ctx, &ticket)
+	if err != nil {
+		tr.Logger.Println(err)
+		return nil, err
+	}
+	tr.Logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return ticket, nil
 }

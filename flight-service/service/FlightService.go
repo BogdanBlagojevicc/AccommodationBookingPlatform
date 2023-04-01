@@ -24,3 +24,7 @@ func (fs *FlightService) Insert(newFlight *model.Flight) (*model.Flight, error) 
 
 	return fs.Repo.Insert(newFlight) //newUser
 }
+
+func (fs *FlightService) GetNumberOfFreeSeatsById(id string) (*uint64, error) {
+	return fs.Repo.GetNumberOfFreeSeatsById(id)
+}

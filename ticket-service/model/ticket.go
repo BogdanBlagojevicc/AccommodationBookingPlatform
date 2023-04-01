@@ -7,10 +7,9 @@ import (
 )
 
 type Ticket struct {
-	ID              primitive.ObjectID
-	UserID          primitive.ObjectID
-	FlightID        primitive.ObjectID
-	NumberOfTickets uint8
+	ID       primitive.ObjectID `bson:"_id" json:"id"`
+	UserID   primitive.ObjectID `bson:"userId" json:"userId"`
+	FlightID primitive.ObjectID `bson:"flightId" json:"flightId"`
 }
 
 func (u *Ticket) ToJSON(w io.Writer) error {

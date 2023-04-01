@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"ticket-service/handler"
 	"ticket-service/repository"
+	"ticket-service/service"
 	"time"
 
 	gorillaHandlers "github.com/gorilla/handlers"
@@ -35,7 +36,8 @@ func main() {
 
 	ticketStore.Ping()
 
-	ticketsHandler := handler.NewTicketHandler(logger, ticketStore)
+	ticketService := service.NewTicketService(logger, ticketStore)
+	ticketsHandler := handler.NewTicketHandler(logger, ticketService)
 
 	ticketsHandler.DatabaseName(timeoutContext)
 
@@ -43,12 +45,14 @@ func main() {
 	router.Use(ticketsHandler.MiddlewareContentTypeSet)
 
 	postRouter := router.Methods(http.MethodPost).Subrouter()
-	//postRouter.HandleFunc("/", ticketsHandler.PostFlight)
+	postRouter.HandleFunc("/", ticketsHandler.Post)
 	postRouter.Use(ticketsHandler.MiddlewareUserDeserialization)
+
+	//getByEmailAndPasswordRouter := router.Methods(http.MethodGet).Subrouter()
+	//getByEmailAndPasswordRouter.HandleFunc("/{email}/{password}", ticketsHandler.GetUserByEmailAndPassword)
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
-	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,
 		Handler:      cors(router),
@@ -58,7 +62,6 @@ func main() {
 	}
 
 	logger.Println("Server listening on port", port)
-	//Distribute all the connections to goroutines
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
@@ -73,7 +76,6 @@ func main() {
 	sig := <-sigCh
 	logger.Println("Received terminate, graceful shutdown", sig)
 
-	//Try to shutdown gracefully
 	if server.Shutdown(timeoutContext) != nil {
 		logger.Fatal("Cannot gracefully shutdown...")
 	}
