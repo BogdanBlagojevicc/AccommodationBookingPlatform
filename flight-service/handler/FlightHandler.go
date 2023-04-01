@@ -5,6 +5,7 @@ import (
 	"flight-service/model"
 	"flight-service/service"
 	"fmt"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
@@ -68,4 +69,36 @@ func (u *FlightHandler) MiddlewareContentTypeSet(next http.Handler) http.Handler
 
 		next.ServeHTTP(rw, h)
 	})
+}
+
+func (f *FlightHandler) DeleteFlight(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	id := vars["id"]
+
+	f.Service.Delete(id)
+	rw.WriteHeader(http.StatusNoContent)
+}
+
+func (f *FlightHandler) GetFlightById(rw http.ResponseWriter, h *http.Request) {
+	vars := mux.Vars(h)
+	id := vars["id"]
+
+	flight, err := f.Service.GetFlightById(id)
+	if err != nil {
+		f.Logger.Print("Database exception: ", err)
+	}
+
+	if flight == nil {
+		http.Error(rw, "Flight with given id not found", http.StatusNotFound)
+		f.Logger.Printf("Flight with id: '%s' not found", id)
+		return
+	}
+
+	err = flight.ToJSON(rw)
+	if err != nil {
+		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
+		f.Logger.Fatal("Unable to convert to json :", err)
+		return
+	}
+
 }

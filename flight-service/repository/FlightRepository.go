@@ -5,6 +5,7 @@ import (
 	"flight-service/model"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -71,13 +72,45 @@ func (ur *FlightRepository) getCollection() *mongo.Collection {
 func (ur *FlightRepository) Insert(flight *model.Flight) (*model.Flight, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	flightsCollection := ur.getCollection()
+	usersCollection := ur.getCollection()
 
-	result, err := flightsCollection.InsertOne(ctx, &flight)
+	result, err := usersCollection.InsertOne(ctx, &flight)
 	if err != nil {
 		ur.Logger.Println(err)
 		return nil, err
 	}
 	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return flight, nil
+}
+
+func (pr *FlightRepository) Delete(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	flightsCollection := pr.getCollection()
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{Key: "_id", Value: objID}}
+	result, err := flightsCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		pr.Logger.Println(err)
+		return err
+	}
+	pr.Logger.Printf("Documents deleted: %v\n", result.DeletedCount)
+	return nil
+}
+
+func (fr *FlightRepository) GetFlightById(id string) (*model.Flight, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	flightsCollection := fr.getCollection()
+
+	var flight model.Flight
+	objID, _ := primitive.ObjectIDFromHex(id)
+	err := flightsCollection.FindOne(ctx, bson.M{"_id": objID}).Decode(&flight)
+	if err != nil {
+		fr.Logger.Println(err)
+		return nil, err
+	}
+	return &flight, nil
 }
