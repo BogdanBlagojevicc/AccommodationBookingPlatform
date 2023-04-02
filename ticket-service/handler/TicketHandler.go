@@ -51,6 +51,7 @@ func (th *TicketHandler) PostTicket(rw http.ResponseWriter, h *http.Request) {
 
 	ticket := h.Context().Value(KeyProduct{}).(*model.Ticket)
 	ticket.ID = primitive.NewObjectID()
+
 	createdTicket, err := th.Service.Insert(ticket)
 	if createdTicket == nil {
 		rw.WriteHeader(http.StatusBadRequest)

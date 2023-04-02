@@ -43,6 +43,9 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(flightsHandler.MiddlewareContentTypeSet)
 
+	getRouter := router.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/{flightId}/{numberOfTickets}", flightsHandler.GetNumberOfFreeSeats)
+
 	postRouter := router.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", flightsHandler.PostFlight)
 	postRouter.Use(flightsHandler.MiddlewareUserDeserialization)

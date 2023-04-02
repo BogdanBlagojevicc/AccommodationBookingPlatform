@@ -32,12 +32,15 @@ func (fs *FlightService) GetFlights(departure string, departurePlace string, arr
 	return fs.Repo.GetAll(departure, departurePlace, arrivalPlace, noOfSeats)
 }
 
-func (fs *FlightService) GetNumberOfFreeSeats(id string) (uint64, error) {
+func (fs *FlightService) GetNumberOfFreeSeats(id string, numOfTickets uint64) error {
 	flight, err := fs.Repo.GetFlightById(id)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	return flight.NumberOfFreeSeats, nil
+	if numOfTickets > flight.NumberOfFreeSeats {
+		return err
+	}
+	return nil
 }
 
 func (fs *FlightService) Update(id string, newNumberOfFreeSeats uint64) error {

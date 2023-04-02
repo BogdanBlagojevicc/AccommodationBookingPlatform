@@ -134,3 +134,26 @@ func (f *FlightHandler) GetFlightById(rw http.ResponseWriter, h *http.Request) {
 	}
 
 }
+
+func (fh *FlightHandler) GetNumberOfFreeSeats(rw http.ResponseWriter, h *http.Request) {
+
+	fh.Logger.Println("Provera broja mesta...")
+
+	vars := mux.Vars(h)
+	flightId := vars["flightId"]
+	numOfTickets := vars["numberOfTickets"]
+
+	numberOfTickets, err := strconv.ParseUint(numOfTickets, 10, 64)
+
+	if err != nil {
+		fh.Logger.Println("Greska prilikom parsiranja")
+		rw.WriteHeader(http.StatusBadRequest)
+	}
+	err = fh.Service.GetNumberOfFreeSeats(flightId, numberOfTickets)
+	if err != nil {
+		fh.Logger.Println("Greska prilikom pregleda slobodnih mesta")
+		rw.WriteHeader(http.StatusBadRequest)
+	}
+	fh.Logger.Println("Sve ok")
+	rw.WriteHeader(http.StatusOK)
+}
