@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"os"
+	"ticket-service/model"
 	"time"
 )
 
@@ -58,4 +59,41 @@ func (u *TicketRepository) Ping() {
 		u.Logger.Println(err)
 	}
 	fmt.Println(dbs)
+}
+
+func (tr *TicketRepository) getCollection() *mongo.Collection {
+	return tr.Cli.Database("booking").Collection("tickets")
+}
+
+func (tr *TicketRepository) Insert(ticket *model.Ticket) (*model.Ticket, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	usersCollection := tr.getCollection()
+
+	result, err := usersCollection.InsertOne(ctx, &ticket)
+	if err != nil {
+		tr.Logger.Println(err)
+		return nil, err
+	}
+	tr.Logger.Printf("Documents ID: %v\n", result.InsertedID)
+	return ticket, nil
+}
+
+func (tr *TicketRepository) GetByUserId(id string) (model.Tickets, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	ticketsCollection := tr.getCollection()
+
+	var tickets model.Tickets
+	ticketsCursor, err := ticketsCollection.Find(ctx, bson.M{"userId": id})
+	if err != nil {
+		tr.Logger.Println(err)
+		return nil, err
+	}
+	if err = ticketsCursor.All(ctx, &tickets); err != nil {
+		tr.Logger.Println(err)
+		return nil, err
+	}
+	return tickets, nil
 }

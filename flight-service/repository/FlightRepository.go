@@ -38,8 +38,8 @@ func New(ctx context.Context, logger *log.Logger) (*FlightRepository, error) {
 		Logger: logger,
 	}, nil
 }
-func (u *FlightRepository) Disconnect(ctx context.Context) error {
-	err := u.Cli.Disconnect(ctx)
+func (fr *FlightRepository) Disconnect(ctx context.Context) error {
+	err := fr.Cli.Disconnect(ctx)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -47,55 +47,55 @@ func (u *FlightRepository) Disconnect(ctx context.Context) error {
 	return nil
 }
 
-func (u *FlightRepository) Ping() {
+func (fr *FlightRepository) Ping() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err := u.Cli.Ping(ctx, readpref.Primary())
+	err := fr.Cli.Ping(ctx, readpref.Primary())
 	if err != nil {
-		u.Logger.Println(err)
+		fr.Logger.Println(err)
 	}
 
-	dbs, err := u.Cli.ListDatabaseNames(ctx, bson.M{})
+	dbs, err := fr.Cli.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
-		u.Logger.Println(err)
+		fr.Logger.Println(err)
 	}
 	fmt.Println(dbs)
 }
 
-func (ur *FlightRepository) getCollection() *mongo.Collection {
-	bookingDatabase := ur.Cli.Database("booking")
+func (fr *FlightRepository) getCollection() *mongo.Collection {
+	bookingDatabase := fr.Cli.Database("booking")
 	usersCollection := bookingDatabase.Collection("flights")
 	return usersCollection
 }
 
-func (ur *FlightRepository) Insert(flight *model.Flight) (*model.Flight, error) {
+func (fr *FlightRepository) Insert(flight *model.Flight) (*model.Flight, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	usersCollection := ur.getCollection()
+	usersCollection := fr.getCollection()
 
 	result, err := usersCollection.InsertOne(ctx, &flight)
 	if err != nil {
-		ur.Logger.Println(err)
+		fr.Logger.Println(err)
 		return nil, err
 	}
-	ur.Logger.Printf("Documents ID: %v\n", result.InsertedID)
+	fr.Logger.Printf("Documents ID: %v\n", result.InsertedID)
 	return flight, nil
 }
 
-func (pr *FlightRepository) Delete(id string) error {
+func (fr *FlightRepository) Delete(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	flightsCollection := pr.getCollection()
+	flightsCollection := fr.getCollection()
 
 	objID, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.D{{Key: "_id", Value: objID}}
 	result, err := flightsCollection.DeleteOne(ctx, filter)
 	if err != nil {
-		pr.Logger.Println(err)
+		fr.Logger.Println(err)
 		return err
 	}
-	pr.Logger.Printf("Documents deleted: %v\n", result.DeletedCount)
+	fr.Logger.Printf("Documents deleted: %v\n", result.DeletedCount)
 	return nil
 }
 
@@ -115,11 +115,11 @@ func (fr *FlightRepository) GetFlightById(id string) (*model.Flight, error) {
 	return &flight, nil
 }
 
-func (ur *FlightRepository) GetAll(departure string, departurePlace string, arrivalPlace string, noOfSeats int) (model.Flights, error) {
+func (fr *FlightRepository) GetAll(departure string, departurePlace string, arrivalPlace string, noOfSeats int) (model.Flights, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	flightsCollection := ur.getCollection()
+	flightsCollection := fr.getCollection()
 	//		"numberOfFreeSeats" :  {$gt:4}
 
 	var flights model.Flights
@@ -129,12 +129,32 @@ func (ur *FlightRepository) GetAll(departure string, departurePlace string, arri
 		"arrivalPlace":      arrivalPlace,
 		"numberOfFreeSeats": bson.M{"$gte": noOfSeats}})
 	if err != nil {
-		ur.Logger.Println(err)
+		fr.Logger.Println(err)
 		return nil, err
 	}
 	if err = flightsCursor.All(ctx, &flights); err != nil {
-		ur.Logger.Println(err)
+		fr.Logger.Println(err)
 		return nil, err
 	}
 	return flights, nil
+}
+func (fr *FlightRepository) Update(id string, newNumberOfFreeSeats uint64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	flightsCollection := fr.getCollection()
+
+	objID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": objID}
+	update := bson.M{"$set": bson.M{
+		"numberOfFreeSeats": newNumberOfFreeSeats,
+	}}
+	result, err := flightsCollection.UpdateOne(ctx, filter, update)
+	fr.Logger.Printf("Documents matched: %v\n", result.MatchedCount)
+	fr.Logger.Printf("Documents updated: %v\n", result.ModifiedCount)
+
+	if err != nil {
+		fr.Logger.Println(err)
+		return err
+	}
+	return nil
 }

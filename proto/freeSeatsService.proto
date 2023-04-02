@@ -1,0 +1,20 @@
+syntax="proto3";
+
+option go_package="proto/freeSeats";
+
+service FreeSeatsService {
+  rpc GetFreeSeats(GetFreeSeatsRequest) returns (GetFreeSeatsResponse){}
+}
+
+message FreeSeats{
+  string flightId = 1;
+  uint64 numberOfFreeSeats=2;
+}
+
+message GetFreeSeatsRequest{
+  string flightId=1;
+}
+
+message GetFreeSeatsResponse{
+  FreeSeats freeSeats=1;
+}
