@@ -43,6 +43,12 @@ func main() {
 	router := mux.NewRouter()
 	router.Use(flightsHandler.MiddlewareContentTypeSet)
 
+	getRouter := router.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/{flightId}/{numberOfTickets}", flightsHandler.CheckNumberOfFreeSeats)
+
+	updateRouter := router.Methods(http.MethodPatch).Subrouter()
+	updateRouter.HandleFunc("/update/{flightId}/{numberOfTickets}", flightsHandler.Update)
+
 	postRouter := router.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", flightsHandler.PostFlight)
 	postRouter.Use(flightsHandler.MiddlewareUserDeserialization)
@@ -51,14 +57,13 @@ func main() {
 	deleteRouter.HandleFunc("/delete/{id}", flightsHandler.DeleteFlight)
 
 	getFlightByIdRouter := router.Methods(http.MethodGet).Subrouter()
-	getFlightByIdRouter.HandleFunc("/getFlight/{id}", flightsHandler.GetFlightById)
+	getFlightByIdRouter.HandleFunc("/{id}", flightsHandler.GetFlightById)
 
 	getFlights := router.Methods(http.MethodGet).Subrouter()
 	getFlights.HandleFunc("/{departure}/{departurePlace}/{arrivalPlace}/{noOfSeats}", flightsHandler.GetFlights)
 
 	cors := gorillaHandlers.CORS(gorillaHandlers.AllowedOrigins([]string{"*"}))
 
-	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,
 		Handler:      cors(router),
@@ -68,7 +73,6 @@ func main() {
 	}
 
 	logger.Println("Server listening on port", port)
-	//Distribute all the connections to goroutines
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
@@ -83,7 +87,6 @@ func main() {
 	sig := <-sigCh
 	logger.Println("Received terminate, graceful shutdown", sig)
 
-	//Try to shut down gracefully
 	if server.Shutdown(timeoutContext) != nil {
 		logger.Fatal("Cannot gracefully shutdown...")
 	}

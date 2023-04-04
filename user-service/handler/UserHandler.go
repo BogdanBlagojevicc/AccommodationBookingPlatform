@@ -30,29 +30,6 @@ func (u *UserHandler) DatabaseName(ctx context.Context) {
 	fmt.Println(dbs)
 }
 
-//func (u *UserHandler) GetUserById(rw http.ResponseWriter, h *http.Request) {
-//	vars := mux.Vars(h)
-//	id := vars["id"]
-//
-//	patient, err := u.Repo.GetById(id)
-//	if err != nil {
-//		u.Logger.Print("Database exception: ", err)
-//	}
-//
-//	if patient == nil {
-//		http.Error(rw, "Patient with given id not found", http.StatusNotFound)
-//		u.Logger.Printf("Patient with id: '%s' not found", id)
-//		return
-//	}
-//
-//	err = patient.ToJSON(rw)
-//	if err != nil {
-//		http.Error(rw, "Unable to convert to json", http.StatusInternalServerError)
-//		p.logger.Fatal("Unable to convert to json :", err)
-//		return
-//	}
-//}
-
 func (u *UserHandler) MiddlewareUserDeserialization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, h *http.Request) {
 		user := &model.User{}

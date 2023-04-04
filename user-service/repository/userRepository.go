@@ -76,7 +76,6 @@ func (ur *UserRepository) GetByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := usersCollection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
 	if err != nil {
-		fmt.Println("Ovo je ok")
 		ur.Logger.Println(err)
 		return nil, err
 	}
@@ -92,7 +91,6 @@ func (ur *UserRepository) GetUserByEmailAndPassword(email string, password strin
 	var user model.User
 	err := usersCollection.FindOne(ctx, bson.M{"email": email, "password": password}).Decode(&user)
 	if err != nil {
-		fmt.Println("Ovo ne valja")
 		ur.Logger.Println(err)
 		return nil, err
 	}
