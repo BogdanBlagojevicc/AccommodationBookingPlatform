@@ -46,7 +46,7 @@ func main() {
 	getRouter := router.Methods(http.MethodGet).Subrouter()
 	getRouter.HandleFunc("/{flightId}/{numberOfTickets}", flightsHandler.CheckNumberOfFreeSeats)
 
-	updateRouter := router.Methods(http.MethodPatch).Subrouter()
+	updateRouter := router.Methods(http.MethodGet).Subrouter()
 	updateRouter.HandleFunc("/update/{flightId}/{numberOfTickets}", flightsHandler.Update)
 
 	postRouter := router.Methods(http.MethodPost).Subrouter()

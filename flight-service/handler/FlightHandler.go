@@ -156,6 +156,7 @@ func (fh *FlightHandler) CheckNumberOfFreeSeats(rw http.ResponseWriter, h *http.
 }
 
 func (fh *FlightHandler) Update(rw http.ResponseWriter, h *http.Request) {
+
 	vars := mux.Vars(h)
 	flightId := vars["flightId"]
 	numOfTickets := vars["numberOfTickets"]
@@ -167,6 +168,7 @@ func (fh *FlightHandler) Update(rw http.ResponseWriter, h *http.Request) {
 	}
 
 	err = fh.Service.Update(flightId, numberOfTickets)
+
 	if err != nil {
 		log.Println(err)
 		rw.WriteHeader(http.StatusBadRequest)

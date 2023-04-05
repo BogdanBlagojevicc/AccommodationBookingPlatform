@@ -44,6 +44,7 @@ func (fs *FlightService) CheckNumberOfFreeSeats(id string, numOfTickets uint64) 
 }
 
 func (fs *FlightService) Update(id string, numberOfTickets uint64) error {
+
 	flight, err := fs.GetFlightById(id)
 
 	if err != nil {
@@ -52,5 +53,6 @@ func (fs *FlightService) Update(id string, numberOfTickets uint64) error {
 	}
 
 	newNumOfFreeSeats := flight.NumberOfFreeSeats - numberOfTickets
+
 	return fs.Repo.Update(id, newNumOfFreeSeats)
 }

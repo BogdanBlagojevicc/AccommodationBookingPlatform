@@ -67,6 +67,7 @@ func (th *TicketHandler) PostTicket(rw http.ResponseWriter, h *http.Request) {
 		rw.WriteHeader(http.StatusBadRequest)
 	}
 	if err != nil {
+
 		rw.WriteHeader(http.StatusBadRequest)
 	}
 	rw.WriteHeader(http.StatusCreated)

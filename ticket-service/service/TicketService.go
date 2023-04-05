@@ -25,7 +25,7 @@ func (ts *TicketService) Insert(ticket *model.Ticket) (*model.Ticket, error) {
 
 	resp, err := http.Get(reqUrl)
 	if err != nil || resp.StatusCode == 400 {
-		ts.Logger.Println("Failed")
+		ts.Logger.Println("Failed1")
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func (ts *TicketService) Insert(ticket *model.Ticket) (*model.Ticket, error) {
 
 	resp, err = http.Get(reqUrl)
 	if err != nil || resp.StatusCode == 400 {
-		ts.Logger.Println("Failed")
+		ts.Logger.Println("Failed2")
 		return nil, err
 	}
 
