@@ -5,6 +5,7 @@ import (
 	"flight-service/model"
 	"flight-service/service"
 	"fmt"
+	//_ "github.com/BogdanBlagojevicc/AccommodationBookingPlatform/flight-service/proto"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
