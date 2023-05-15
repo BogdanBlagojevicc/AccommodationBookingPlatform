@@ -3,7 +3,6 @@ module flight-service
 go 1.20
 
 require (
-	//github.com/BogdanBlagojevicc/AccommodationBookingPlatform/tree/main/proto v0.0.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	go.mongodb.org/mongo-driver v1.11.3
@@ -30,4 +29,5 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 )
 
-//replace github.com/BogdanBlagojevicc/AccommodationBookingPlatform/tree/main/proto => D:/4godina/XML/kon1/AccommodationBookingPlatform/flight-service/proto
+replace github.com/BogdanBlagojevicc/AccommodationBookingPlatform/tree/main/proto => ../proto
+//replace github.com/BogdanBlagojevicc/AccommodationBookingPlatform/tree/main/flight-service/proto => D:/4godina/XML/kon1/AccommodationBookingPlatform/flight-service/proto
